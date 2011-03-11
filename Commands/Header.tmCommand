@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>saveActiveFile</string>
+	<key>command</key>
+	<string>#!/usr/bin/env ruby
+
+doc = STDIN.read.to_s
+in_id_line = /^\#\s+\$Id.*$/.match(doc)
+version = 0.01
+date = Time.now
+comment_string = "#" * 80
+current_user = ENV['USER']
+out_id_line = "# \$Id: " + ENV['TM_FILENAME'] + ", v " + version.to_s + " " + date.to_s + " " + current_user + " \$\n"
+
+if !in_id_line
+  puts comment_string + "\n" + out_id_line + comment_string + "\n\n"
+else
+  matcher = /v (\d+.\d+) (\w+) (?:Exp)? $/.match(in_id_line[0].to_s)
+  version = (matcher[1]).to_f + 0.01
+  puts matcher[2]
+  if current_user == matcher[2]
+    out_id_line = "# \$Id: " + ENV['TM_FILENAME'] + ", v " + version.to_s + " " + date.to_s + " " + current_user + " \$"
+  else
+    out_id_line = matcher[0] + "\n# Modified: " + ENV['TM_FILENAME'] + ", v " + version.to_s + " " + date.to_s + " " + current_user + " \$"
+  end
+  doc = doc.gsub(/^\#\s+\$Id.*$/, out_id_line)
+end
+
+# f = open(ENV['TM_FILEPATH'], "w")
+# f.write(doc)
+# f.close_write
+
+# system("mate " + ENV['TM_FILEPATH'])
+# exec("osascript -e 'tell app \"TextMate\" to save " + ENV['TM_FILEPATH'] + "'")
+
+puts doc</string>
+	<key>input</key>
+	<string>selection</string>
+	<key>keyEquivalent</key>
+	<string>^@h</string>
+	<key>name</key>
+	<string>Header</string>
+	<key>output</key>
+	<string>replaceDocument</string>
+	<key>scope</key>
+	<string>source.parser</string>
+	<key>uuid</key>
+	<string>C6D0C850-F88C-413A-8F74-585BE18EEDB1</string>
+</dict>
+</plist>
